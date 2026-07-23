@@ -32,6 +32,7 @@ from sklearn.ensemble import IsolationForest
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import OneClassSVM
+import statsmodels.api as sm
 
 # ======================================================================
 # PAGE CONFIG
@@ -85,8 +86,33 @@ def preprocess(df, sample_n, random_state=42):
 
     return d.reset_index(drop=True), cancelled_summary
 
+def transform_flightpath(df):
+    df["flight_path"] = df["ORIGIN_CITY_NAME"] + " -> " + df["DEST_CITY_NAME"]
 
-# Numeric feature set used for PCA + anomaly detection.
+    flight_path_df = pd.DataFrame(
+        {
+            "number_of_flights": df.groupby('flight_path')["ARR_DELAY"].count(),
+            "mean_departure_delay": df.groupby('flight_path')["DEP_DELAY"].mean(),
+            "max_departure_delay": df.groupby('flight_path')["DEP_DELAY"].max(),
+            "mean_arrival_delay": df.groupby('flight_path')["ARR_DELAY"].mean(),
+            "max_arrival_delay": df.groupby('flight_path')["ARR_DELAY"].max()
+        }
+    )
+
+    return flight_path_df
+
+def transform_airport(df):
+    airport_df = pd.DataFrame(
+        {
+
+            "number_of_flights": df.groupby('ORIGIN_CITY_NAME')["ARR_DELAY"].count(),
+            "mean_departure_delay": df.groupby('ORIGIN_CITY_NAME')["DEP_DELAY"].mean(),
+            "mean_arrival_delay": df.groupby('ORIGIN_CITY_NAME')["ARR_DELAY"].mean()
+        }
+    )
+    return airport_df
+
+    # Numeric feature set used for PCA + anomaly detection.
 # (No carrier / distance / taxi / elapsed-time columns exist in this extract.)
 FEATURE_COLS = ["DEP_DELAY", "ARR_DELAY", "ARR_DELAY_NEW", "DELAY_GAP", "ARR_HOUR", "DAY_OF_WEEK"]
 
@@ -105,7 +131,7 @@ st.sidebar.title("\u2708\ufe0f Control Tower Settings")
 # The dataset filename is fixed here since this dashboard is built for one
 # specific file. Change this string if your CSV has a different name / path,
 # then re-run `streamlit run dash.py` (no upload step needed).
-DATA_FILE = r"C:\Users\jaina\.spyder-py3\Flights.csv"
+DATA_FILE = r"C:\Users\steve\PycharmProjects\Anomaly-detection\data cleaning\Flights1_2019_1.csv"
 
 try:
     raw_df = load_data(DATA_FILE)
@@ -158,6 +184,8 @@ st.sidebar.caption(
 
 df, cancelled_by_dow = preprocess(raw_df, sample_n)
 
+flight_path_df = transform_flightpath(df)
+
 if len(df) < 50:
     st.error("Not enough clean rows after preprocessing. Check the file / column names.")
     st.stop()
@@ -197,6 +225,26 @@ pca_model = PCA(n_components=n_components, random_state=42)
 X_pca = pca_model.fit_transform(X_scaled)
 pca_cols = [f"PC{i+1}" for i in range(n_components)]
 pca_df = pd.DataFrame(X_pca, columns=pca_cols)
+
+
+# ======================================================================
+# SCALING + PCA (dimension reduction) (Transformed Data)
+# ======================================================================
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(flight_path_df)
+
+pca_full = PCA(n_components=2)
+pca_full.fit(X_scaled)
+explained_var = pca_full.explained_variance_ratio_
+
+pca_model = PCA(n_components=2)
+X_pca = pca_model.fit_transform(X_scaled)
+pca_cols = [f"PC{i+1}" for i in range(2)]
+pca_df = pd.DataFrame(X_pca, columns=pca_cols)
+
+
+transform_scaled = scaler.fit_transform(X_scaled)
 
 # ======================================================================
 # ANOMALY DETECTION — 5 ALGORITHMS
