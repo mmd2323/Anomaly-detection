@@ -93,9 +93,12 @@ def transform_flightpath(df):
         {
             "number_of_flights": df.groupby('flight_path')["ARR_DELAY"].count(),
             "mean_departure_delay": df.groupby('flight_path')["DEP_DELAY"].mean(),
+            "probablility_of_dep_delay": df.groupby('flight_path').apply(lambda x: (x['DEP_DELAY'] < 0).mean()),
             "max_departure_delay": df.groupby('flight_path')["DEP_DELAY"].max(),
             "mean_arrival_delay": df.groupby('flight_path')["ARR_DELAY"].mean(),
-            "max_arrival_delay": df.groupby('flight_path')["ARR_DELAY"].max()
+            "probablility_of_arr_delay": df.groupby('flight_path').apply(lambda x: (x['ARR_DELAY'] < 0).mean()),
+            "max_arrival_delay": df.groupby('flight_path')["ARR_DELAY"].max(),
+
         }
     )
 
@@ -214,17 +217,17 @@ if len(df) < 50 or len(X_raw) < 50:
 # ======================================================================
 # SCALING + PCA (dimension reduction)
 # ======================================================================
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X_raw)
-
-pca_full = PCA(n_components=min(len(feature_cols), 6), random_state=42)
-pca_full.fit(X_scaled)
-explained_var = pca_full.explained_variance_ratio_
-
-pca_model = PCA(n_components=n_components, random_state=42)
-X_pca = pca_model.fit_transform(X_scaled)
-pca_cols = [f"PC{i+1}" for i in range(n_components)]
-pca_df = pd.DataFrame(X_pca, columns=pca_cols)
+# scaler = StandardScaler()
+# X_scaled = scaler.fit_transform(X_raw)
+#
+# pca_full = PCA(n_components=min(len(feature_cols), 6), random_state=42)
+# pca_full.fit(X_scaled)
+# explained_var = pca_full.explained_variance_ratio_
+#
+# pca_model = PCA(n_components=n_components, random_state=42)
+# X_pca = pca_model.fit_transform(X_scaled)
+# pca_cols = [f"PC{i+1}" for i in range(n_components)]
+# pca_df = pd.DataFrame(X_pca, columns=pca_cols)
 
 
 # ======================================================================
@@ -234,13 +237,13 @@ pca_df = pd.DataFrame(X_pca, columns=pca_cols)
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(flight_path_df)
 
-pca_full = PCA(n_components=2)
+pca_full = PCA(n_components=6)
 pca_full.fit(X_scaled)
 explained_var = pca_full.explained_variance_ratio_
 
-pca_model = PCA(n_components=2)
+pca_model = PCA(n_components=6)
 X_pca = pca_model.fit_transform(X_scaled)
-pca_cols = [f"PC{i+1}" for i in range(2)]
+pca_cols = [f"PC{i+1}" for i in range(6)]
 pca_df = pd.DataFrame(X_pca, columns=pca_cols)
 
 
@@ -317,13 +320,13 @@ if len(X_scaled) > MAX_TRAIN_N_FOR_QUADRATIC_MODELS:
 
 algo_names = list(model_results.keys())
 for name, r in model_results.items():
-    df[f"flag_{name}"] = (r["pred"] == -1)
+    flight_path_df[f"flag_{name}"] = (r["pred"] == -1)
     s = r["score"]
     s_norm = (s - s.min()) / (s.max() - s.min() + 1e-9)
-    df[f"score_{name}"] = s_norm
+    flight_path_df[f"score_{name}"] = s_norm
 
-df["consensus_votes"] = df[[f"flag_{n}" for n in algo_names]].sum(axis=1)
-df["consensus_anomaly"] = df["consensus_votes"] >= 2
+flight_path_df["consensus_votes"] = flight_path_df[[f"flag_{n}" for n in algo_names]].sum(axis=1)
+flight_path_df["consensus_anomaly"] = flight_path_df["consensus_votes"] >= 2
 
 # ======================================================================
 # TABS
