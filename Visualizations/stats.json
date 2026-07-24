@@ -1,0 +1,128 @@
+{
+  "n_raw": 583985,
+  "n_clean": 565963,
+  "n_routes_all": 5113,
+  "pct_flights_late": 0.3413544701685446,
+  "mean_arr_delay_flights": 4.257506232739596,
+  "n_routes_analyzed": 4948,
+  "explained_variance": [
+    0.5061,
+    0.2609,
+    0.1207,
+    0.0615,
+    0.0458,
+    0.0048,
+    0.0003
+  ],
+  "cumulative_variance_3pc": 0.887632234413921,
+  "flags_per_algorithm": {
+    "Isolation Forest": 248,
+    "Local Outlier Factor": 203,
+    "One-Class SVM": 245,
+    "Elliptic Envelope": 248,
+    "DBSCAN": 85
+  },
+  "n_consensus": 251,
+  "n_unanimous": 27,
+  "vote_distribution": {
+    "0": 4399,
+    "1": 298,
+    "2": 121,
+    "3": 58,
+    "4": 45,
+    "5": 27
+  },
+  "silhouette": 0.5244130989221666,
+  "jaccard": {
+    "Isolation Forest": {
+      "Isolation Forest": 1.0,
+      "Local Outlier Factor": 0.114,
+      "One-Class SVM": 0.34,
+      "Elliptic Envelope": 0.425,
+      "DBSCAN": 0.291
+    },
+    "Local Outlier Factor": {
+      "Isolation Forest": 0.114,
+      "Local Outlier Factor": 1.0,
+      "One-Class SVM": 0.302,
+      "Elliptic Envelope": 0.095,
+      "DBSCAN": 0.195
+    },
+    "One-Class SVM": {
+      "Isolation Forest": 0.34,
+      "Local Outlier Factor": 0.302,
+      "One-Class SVM": 1.0,
+      "Elliptic Envelope": 0.281,
+      "DBSCAN": 0.315
+    },
+    "Elliptic Envelope": {
+      "Isolation Forest": 0.425,
+      "Local Outlier Factor": 0.095,
+      "One-Class SVM": 0.281,
+      "Elliptic Envelope": 1.0,
+      "DBSCAN": 0.238
+    },
+    "DBSCAN": {
+      "Isolation Forest": 0.291,
+      "Local Outlier Factor": 0.195,
+      "One-Class SVM": 0.315,
+      "Elliptic Envelope": 0.238,
+      "DBSCAN": 1.0
+    }
+  },
+  "spearman": [
+    [
+      1.0,
+      0.435,
+      0.747,
+      0.844,
+      0.219
+    ],
+    [
+      0.435,
+      1.0,
+      0.535,
+      0.479,
+      0.203
+    ],
+    [
+      0.747,
+      0.535,
+      1.0,
+      0.725,
+      0.221
+    ],
+    [
+      0.844,
+      0.479,
+      0.725,
+      1.0,
+      0.214
+    ],
+    [
+      0.219,
+      0.203,
+      0.221,
+      0.214,
+      1.0
+    ]
+  ],
+  "feature_means_normal": {
+    "number_of_flights": 109.16,
+    "mean_departure_delay": 8.71,
+    "probablility_of_dep_delay": 0.32,
+    "max_departure_delay": 219.48,
+    "mean_arrival_delay": 3.4,
+    "probablility_of_arr_delay": 0.34,
+    "max_arrival_delay": 217.88
+  },
+  "feature_means_anomaly": {
+    "number_of_flights": 210.56,
+    "mean_departure_delay": 31.86,
+    "probablility_of_dep_delay": 0.43,
+    "max_departure_delay": 717.37,
+    "mean_arrival_delay": 26.69,
+    "probablility_of_arr_delay": 0.45,
+    "max_arrival_delay": 717.62
+  }
+}
