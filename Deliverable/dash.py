@@ -513,8 +513,10 @@ with tab5:
 
     st.markdown("Pick a route below (defaults to the most suspicious one) to inspect it in detail.")
     choice_label = st.selectbox("Select a route", ranked["label"].tolist())
-    row_id = int(ranked[ranked["label"] == choice_label].index[0])
+    label = choice_label.split(" (")[0]
+    row_id = int(flight_path_df.index[flight_path_df["flight_path"] == label].tolist()[0])
     route_row = flight_path_df.iloc[row_id]
+
 
     c1, c2, c3 = st.columns(3)
     c1.metric("Algorithms flagging this route", f"{int(route_row['consensus_votes'])} / {len(algo_names)}")
